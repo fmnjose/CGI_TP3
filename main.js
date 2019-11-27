@@ -1,11 +1,11 @@
 var canvas;
 var gl;
 var program;
-var scale = 1;
+var canvasX, canvasY;
 
-var time;
+var ORTHO = ortho(-2, 2, -2, 2, -10, 10);
 
-var aspect;
+var aspectX, aspectY;
 
 var mProjectionLoc, mModelViewLoc;
 
@@ -43,10 +43,11 @@ function multRotationZ(angle) {
 
 function fit_canvas_to_window()
 {
+    aspectX = canvasX / window.innerWidth;
     canvas.width = window.innerWidth;
+    aspectY = canvasY / window.innerHeight;
     canvas.height = window.innerHeight;
-
-    aspect = canvas.width / canvas.height;
+    
     gl.viewport(0, 0,canvas.width, canvas.height);
 
 }
@@ -58,7 +59,11 @@ window.onresize = function () {
 window.onload = function() {
     canvas = document.getElementById('gl-canvas');
 
+    canvasX = canvas.width;
+    canvasY = canvas.height;    
+
     gl = WebGLUtils.setupWebGL(document.getElementById('gl-canvas'));
+
     fit_canvas_to_window();
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -72,9 +77,11 @@ window.onload = function() {
     mModelViewLoc = gl.getUniformLocation(program, "mModelView");
     mProjectionLoc = gl.getUniformLocation(program, "mProjection");
 
+    mProjection = mult(scalem(aspectX, aspectY, 1) ,ORTHO);
+
     setupInput();
 
-    sphereInit(gl);
+    cubeInit(gl);
 
     render();
 }
@@ -114,19 +121,42 @@ function setupInput(){
     }
 }
 
+//--------------------INPUT ACTIONS-----------------
+
+//------PROJECTIONS
+
+function topView(){
+    mProjection = ORTHO;
+    mProjection = mult(scalem(aspectX, aspectY, 1), mProjection)
+    mProjection = mult(rotateX(90), mProjection);
+}
+
+function sideView(){
+    mProjection = ORTHO;
+    mProjection = mult(scalem(aspectX, aspectY, 1), mProjection)
+    mProjection = mult(rotateY(90), mProjection);
+}
+
+function frontView(){
+    mProjection = ORTHO;
+    mProjection = mult(scalem(aspectX, aspectY, 1), mProjection)
+    mProjection = mult(rotateY(180), mProjection);
+}
+
+
+//--------------------RENDER------------------------
+
 function render() 
 {
     requestAnimationFrame(render);
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    var projection = mProjection;
-    
-    projection = mult(scalem(scale, scale, 1), projection);
+    gl.uniformMatrix4fv(mProjectionLoc, false, flatten(mProjection));
 
-    gl.uniformMatrix4fv(mProjectionLoc, false, flatten(projection));
+    modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
 
-    modelView = lookAt([0,VP_DISTANCE,VP_DISTANCE], [0,0,0], [0,1,0]);
+    gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
 
-    time+= 1;
+    cubeDraw(gl, program, true);
 }

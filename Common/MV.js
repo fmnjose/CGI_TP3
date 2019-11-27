@@ -436,7 +436,6 @@ function scalem( x, y, z )
 
 function lookAt( eye, at, up )
 {
-    console.log(eye,at,up);
     if ( !Array.isArray(eye) || eye.length != 3) {
         throw "lookAt(): first parameter [eye] must be an a vec3";
     }
@@ -454,9 +453,7 @@ function lookAt( eye, at, up )
     }
 
     var n = normalize( subtract(eye, at) );  // view direction vector
-    console.log(n);
     var u = normalize( cross(up, n) );       // horizontal vector
-    console.log(u);
     var v = normalize( cross(n, u) );        // "new" up vector
 
     var result = mat4(
