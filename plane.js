@@ -10,7 +10,6 @@ function planeInit(gl){
 
 function planeDrawBody(gl, program){
     pushMatrix();
-        multMatrix(rotateX(-90));
         multMatrix(scalem(SCALE, SCALE, SCALE));
         //CILINDRO
         pushMatrix();
@@ -55,12 +54,9 @@ function drawTail(gl){
             gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
             gl.uniform3fv(mColorLoc, flatten([0.0, 0.0, 1.0]));
             pyramidDraw(gl, program, true);
-        popMatrix();
+
         //FLAB VERTICAL CAUDA
-        pushMatrix();
-            multMatrix(rotateX(180 / SCALE));
-            multMatrix(rotateY(90 / SCALE));
-            multMatrix(scalem(2.0, 1.0, 0.01))
+            multMatrix(rotateY(45 / SCALE));
             gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
             pyramidDraw(gl, program, true);
         popMatrix();
