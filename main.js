@@ -7,7 +7,7 @@ var ORTHO = ortho(-2, 2, -2, 2, -10, 10);
 
 var aspectX, aspectY;
 
-var mProjectionLoc, mModelViewLoc;
+var mProjectionLoc, mModelViewLoc, mColorLoc;
 
 var matrixStack = [];
 var modelView, mProjection;
@@ -47,6 +47,8 @@ function fit_canvas_to_window()
     canvas.width = window.innerWidth;
     aspectY = canvasY / window.innerHeight;
     canvas.height = window.innerHeight;
+
+    mProjection = mult(scalem(aspectX, aspectY, 1), ORTHO);
     
     gl.viewport(0, 0,canvas.width, canvas.height);
 
@@ -76,12 +78,13 @@ window.onload = function() {
 
     mModelViewLoc = gl.getUniformLocation(program, "mModelView");
     mProjectionLoc = gl.getUniformLocation(program, "mProjection");
+    mColorLoc = gl.getUniformLocation(program, "mColor");
 
-    mProjection = mult(scalem(aspectX, aspectY, 1) ,ORTHO);
+    modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
 
     setupInput();
 
-    cubeInit(gl);
+    planeInit(gl);
 
     render();
 }
@@ -126,21 +129,15 @@ function setupInput(){
 //------PROJECTIONS
 
 function topView(){
-    mProjection = ORTHO;
-    mProjection = mult(scalem(aspectX, aspectY, 1), mProjection)
-    mProjection = mult(rotateX(90), mProjection);
+    modelView = lookAt([0, 0, 1], [0, 0, 0], [0, 1, 0]);
 }
 
 function sideView(){
-    mProjection = ORTHO;
-    mProjection = mult(scalem(aspectX, aspectY, 1), mProjection)
-    mProjection = mult(rotateY(90), mProjection);
+    modelView = lookAt([1, 0, 0], [0, 0, 0], [0, 0, 1]);
 }
 
 function frontView(){
-    mProjection = ORTHO;
-    mProjection = mult(scalem(aspectX, aspectY, 1), mProjection)
-    mProjection = mult(rotateY(180), mProjection);
+    modelView = lookAt([0, 1, 0], [0, 0, 0], [0, 0, 1]);
 }
 
 
@@ -154,9 +151,5 @@ function render()
 
     gl.uniformMatrix4fv(mProjectionLoc, false, flatten(mProjection));
 
-    modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
-
-    gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
-
-    cubeDraw(gl, program, true);
+    planeDrawBody(gl, program);
 }

@@ -7,14 +7,15 @@
     <script id="default-vertex" type="x-shader/x-vertex">
         uniform mat4 mModelView;
         uniform mat4 mProjection;
-        attribute vec4 vPosition;
+        uniform vec3 mColor;
         attribute vec3 vNormal;
+        attribute vec4 vPosition;
 
         varying vec3 fNormal;
 
         void main() {
             gl_Position = mProjection * mModelView * vPosition;
-            fNormal = vNormal;
+            fNormal = mColor;
         }
     </script>
 
@@ -33,6 +34,12 @@
     <script type="text/javascript" src="Common/initShaders.js"></script>
     <script type="text/javascript" src="Common/MV.js"></script>
     <script type="text/javascript" src="Common/cube.js"></script>
+    <script type="text/javascript" src="Common/cone.js"></script>
+    <script type="text/javascript" src="Common/sphere.js"></script>
+    <script type="text/javascript" src="Common/cylinder.js"></script>
+    <script type="text/javascript" src="Common/torus.js"></script>
+    <script type="text/javascript" src="Common/pyramid.js"></script>
+    <script type="text/javascript" src="plane.js"></script>
     <script type="text/javascript" src="main.js"></script>
 <body style="margin: 0px">
     <div>
