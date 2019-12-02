@@ -151,5 +151,5 @@ function render()
 
     gl.uniformMatrix4fv(mProjectionLoc, false, flatten(mProjection));
 
-    planeDrawBody(gl, program);
+    planeDraw(gl, program);
 }

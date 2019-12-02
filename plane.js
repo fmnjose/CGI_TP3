@@ -1,14 +1,16 @@
 var BODY_LENGTH = 4;
+var WING_WIDTH = 10;
 var SCALE = 0.5;
 
 function planeInit(gl){
+    cubeInit(gl);
     cylinderInit(gl);
     sphereInit(gl);
     coneInit(gl);
     pyramidInit(gl);
 }
 
-function planeDrawBody(gl, program){
+function planeDraw(gl, program){
     pushMatrix();
         multMatrix(scalem(SCALE, SCALE, SCALE));
         //CILINDRO
@@ -20,13 +22,17 @@ function planeDrawBody(gl, program){
         popMatrix();
         //CABECA
 
-        drawHead(gl);
+        drawHead(gl, program);
 
-        drawTail(gl);
+        drawTail(gl, program);
+
+        drawWings(gl, program);
+
+        drawWheels(gl, program);
     popMatrix();
 }
 
-function drawHead(gl){
+function drawHead(gl, program){
     pushMatrix();
         multMatrix(translate(0, BODY_LENGTH / 2, 0));
         multMatrix(scalem(1, 2, 1));
@@ -36,7 +42,7 @@ function drawHead(gl){
     popMatrix();
 }
 
-function drawTail(gl){
+function drawTail(gl, program){
     pushMatrix();
         multMatrix(translate(0, -BODY_LENGTH / 2, 0));
         //CAUDA
@@ -49,16 +55,101 @@ function drawTail(gl){
 
         //FLAB HORIZONTAL CAUDA
         pushMatrix();
-            multMatrix(rotateX(180 / SCALE));
             multMatrix(scalem(2.0, 3.0, 0.01));
             gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
             gl.uniform3fv(mColorLoc, flatten([0.0, 0.0, 1.0]));
             pyramidDraw(gl, program, true);
-
+        popMatrix();
         //FLAB VERTICAL CAUDA
-            multMatrix(rotateY(45 / SCALE));
+        pushMatrix();
+            multMatrix(rotateY(90));
+            multMatrix(scalem(2.0, 3.0, 0.01));
             gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
             pyramidDraw(gl, program, true);
         popMatrix();
     popMatrix();
 }
+
+function drawWings(gl, program){
+    pushMatrix();
+        multMatrix(translate(0.0, BODY_LENGTH/6, 0.0));
+        pushMatrix();
+            multMatrix(scalem(WING_WIDTH, 2.0, 0.1))
+            gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 0.0]));
+            gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+            pyramidDraw(gl, program, true);
+        popMatrix();
+        wingDetails(gl, true, program);
+        wingDetails(gl, false, program);
+    popMatrix();
+}
+
+function wingDetails(gl, right, program){
+    var side = right ? 1 : -1;
+    pushMatrix();
+        multMatrix(translate(side * WING_WIDTH / 4, -0.25, -0.5));
+        wingEngine(gl, program);  
+        engineRotators(gl, program);        
+    popMatrix();
+}
+
+function wingEngine(gl, program){
+    //Suporte
+    pushMatrix();
+        multMatrix(translate(0, 0, 0.3));
+        multMatrix(rotateX(90));
+        multMatrix(scalem(0.3, 0.3, 0.5));
+        gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
+        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        cylinderDraw(gl, program, true);
+    popMatrix();
+    //Propulsor
+    pushMatrix();
+        multMatrix(scalem(0.5, 1.3, 0.5));  
+        gl.uniform3fv(mColorLoc, flatten([1.0, 0.0, 1.0]));
+        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        cylinderDraw(gl, program, true);
+    popMatrix();
+}
+
+function engineRotators(gl, program){
+    //Eixo das helices
+    pushMatrix();
+        multMatrix(translate(0, 0.4, 0));
+        multMatrix(scalem(0.2, 1.0, 0.2));
+        gl.uniform3fv(mColorLoc, flatten([0.0, 0.0, 0.0]));
+        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        sphereDraw(gl, program, true);
+    popMatrix();
+    //Helices
+    multMatrix(translate(0, 0.7, 0));
+    multMatrix(scalem(0.1, 0.01, 1.0));
+    gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
+    gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+    sphereDraw(gl, program, true);
+}
+
+function drawWheels(gl, program){
+    pushMatrix();
+        multMatrix(translate(0, 1.8, -0.75));
+        drawWheel(gl, program, true);
+        drawWheel(gl, program, false);
+        multMatrix(rotateX(90));
+        multMatrix(scalem(0.15, 0.8, 0.1));
+        gl.uniform3fv(mColorLoc, flatten([0.8, 0.8, 0.8]));
+        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        cylinderDraw(gl, program, true);
+    popMatrix();
+}
+
+function drawWheel(gl, program, right){
+    var side = right ? 1 : -1;
+    pushMatrix()
+        multMatrix(translate(side * 0.1, 0, -0.3));
+        multMatrix(scalem(0.1, 0.5, 0.5));
+        gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
+        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        sphereDraw(gl, program, true);
+    popMatrix();
+}
+
