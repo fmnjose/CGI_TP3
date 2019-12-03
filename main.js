@@ -3,7 +3,26 @@ var gl;
 var program;
 var canvasX, canvasY;
 
-var ORTHO = ortho(-2, 2, -2, 2, -10, 10);
+var turnFactor = 0;
+var rollFactor = 0;
+var diveFactor = 0;
+var speed = 0;
+
+var filled = true;
+
+//CONSTS
+
+const ORTHO = ortho(-2, 2, -2, 2, -10, 10);
+
+const TURN_SCALE = 2;
+
+const ROLL_SCALE = 2;
+
+const DIVE_SCALE = 2;
+
+const SPEED_SCALE = 2;
+
+//VARS
 
 var aspectX, aspectY;
 
@@ -84,6 +103,8 @@ window.onload = function() {
 
     setupInput();
 
+    floorInit(gl);
+
     planeInit(gl);
 
     render();
@@ -105,20 +126,31 @@ function setupInput(){
                 frontView();
                 break;
             case 'q':
+                turnLeft();
                 break;
             case 'e':
+                turnRight();
                 break;
             case 'a':
+                rollLeft();
                 break;
             case 'd':
+                rollRight();
                 break;
             case 'w':
+                dive();
                 break;
             case 's':
+                soar();
                 break;
             case 'r':
+                accelerate();
                 break;
             case 'f':
+                brake();
+                break;
+            case 'o':
+                toggleFilled();
                 break;
         }
     }
@@ -127,6 +159,11 @@ function setupInput(){
 //--------------------INPUT ACTIONS-----------------
 
 //------PROJECTIONS
+
+function chaseView(){
+    modelView = lookAt([0, -1, 0], [0, 0, 0], [0, 0, 1]);
+    //modelView = perspective(120, 2,-10, 10);
+}
 
 function topView(){
     modelView = lookAt([0, 0, 1], [0, 0, 0], [0, 1, 0]);
@@ -140,6 +177,49 @@ function frontView(){
     modelView = lookAt([0, 1, 0], [0, 0, 0], [0, 0, 1]);
 }
 
+//-------------Controls-----------------------------
+function turnLeft(){
+    turnFactor += TURN_SCALE;
+    //multMatrix(rotateZ(TURN_SCALE));
+}
+
+function turnRight(){
+    turnFactor -= TURN_SCALE;
+    //multMatrix(rotateZ(-TURN_SCALE));
+}
+
+function rollLeft(){
+    rollFactor -= ROLL_SCALE;
+    //multMatrix(rotateY(-ROLL_SCALE));
+}
+
+function rollRight(){
+    rollFactor += ROLL_SCALE;
+    //multMatrix(rotateY(ROLL_SCALE));
+}
+
+function dive(){
+    diveFactor -= DIVE_SCALE;
+    //multMatrix(rotateX(-DIVE_SCALE))
+}
+
+function soar(){
+    diveFactor += DIVE_SCALE;
+    //multMatrix(rotateX(DIVE_SCALE));
+}
+
+function accelerate(){
+    speed += SPEED_SCALE;
+}
+
+function brake(){
+    speed = speed > 0 ? speed - 1 : 0;
+}
+
+function toggleFilled(){
+    filled = !filled;
+}
+    
 
 //--------------------RENDER------------------------
 
@@ -151,5 +231,7 @@ function render()
 
     gl.uniformMatrix4fv(mProjectionLoc, false, flatten(mProjection));
 
-    planeDraw(gl, program);
+    floorDraw(gl, program);
+
+    planeDraw(gl, program, speed, filled);
 }
