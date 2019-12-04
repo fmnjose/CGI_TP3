@@ -1,6 +1,6 @@
 var canvas;
 var gl;
-var program;
+var planeProgram, floorProgram;
 var canvasX, canvasY;
 
 var turnFactor = 0;
@@ -91,13 +91,15 @@ window.onload = function() {
 
     gl.enable(gl.DEPTH_TEST);
 
-    program = initShaders(gl, 'default-vertex', 'default-fragment');
+    planeProgram = initShaders(gl, 'plane-vertex', 'plane-fragment');
+    
+    floorProgram = initShaders(gl, 'floor-vertex', 'floor-fragment');
 
-    gl.useProgram(program);
+    gl.useProgram(planeProgram);
 
-    mModelViewLoc = gl.getUniformLocation(program, "mModelView");
-    mProjectionLoc = gl.getUniformLocation(program, "mProjection");
-    mColorLoc = gl.getUniformLocation(program, "mColor");
+    mModelViewLoc = gl.getUniformLocation(planeProgram, "mModelView");
+    mProjectionLoc = gl.getUniformLocation(planeProgram, "mProjection");
+    mColorLoc = gl.getUniformLocation(planeProgram, "mColor");
 
     modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
 
@@ -231,7 +233,7 @@ function render()
 
     gl.uniformMatrix4fv(mProjectionLoc, false, flatten(mProjection));
 
-    floorDraw(gl, program);
+    floorDraw(gl, floorProgram);
 
-    planeDraw(gl, program, speed, filled);
+    planeDraw(gl, planeProgram, speed, filled);
 }

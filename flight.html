@@ -4,7 +4,7 @@
 
 </head>
 
-    <script id="default-vertex" type="x-shader/x-vertex">
+    <script id="plane-vertex" type="x-shader/x-vertex">
         uniform mat4 mModelView;
         uniform mat4 mProjection;
         uniform vec3 mColor;
@@ -19,7 +19,7 @@
         }
     </script>
 
-    <script id="default-fragment" type="x-shader/x-fragment">
+    <script id="plane-fragment" type="x-shader/x-fragment">
         precision highp float;
 
         varying vec3 fNormal;
@@ -27,6 +27,31 @@
         void main() {
             gl_FragColor = vec4(fNormal, 1.0);
 
+        }
+    </script>
+
+    <script id = "floor-vertex" type = "x-shader/x-vertex">
+        attribute vec4 vPosition;
+        attribute vec2 vTexCoord;
+
+        uniform mat4 mModelView;
+        uniform mat4 mProjection;
+
+        varying vec2 fTexCoord;
+        void main() {
+            gl_Position = mProjection * mModelView * vPosition;
+            fTexCoord = vTexCoord;
+        }
+    </script>
+
+    <script id="floor-fragment" type="x-shader/x-fragment">
+        precision highp float;
+
+        varying vec2 fTexCoord;
+        uniform sampler2D texture;
+
+        void main() {
+            gl_FragColor = texture2D(texture, fTexCoord);
         }
     </script>
     
@@ -39,6 +64,7 @@
     <script type="text/javascript" src="Common/cylinder.js"></script>
     <script type="text/javascript" src="Common/torus.js"></script>
     <script type="text/javascript" src="Common/pyramid.js"></script>
+    <script type="text/javascript" src="textureCube.js"></script>
     <script type="text/javascript" src="plane.js"></script>
     <script type="text/javascript" src="floor.js"></script>
     <script type="text/javascript" src="main.js"></script>
