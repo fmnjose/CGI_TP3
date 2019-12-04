@@ -14,6 +14,8 @@ function planeInit(gl){
 
 function planeDraw(gl, program, speed, filled){
     drawFilled = filled;
+    
+    gl.useProgram(planeProgram);
 
     pushMatrix();
     multMatrix(rotateX(diveFactor));
@@ -23,7 +25,7 @@ function planeDraw(gl, program, speed, filled){
         //CILINDRO
         pushMatrix();
             multMatrix(scalem(1, BODY_LENGTH, 1));
-            gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+            gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
             gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
             cylinderDraw(gl, program, drawFilled);
         popMatrix();
@@ -46,7 +48,7 @@ function drawHead(gl, program){
     pushMatrix();
         multMatrix(translate(0, BODY_LENGTH / 2, 0));
         multMatrix(scalem(1, 2, 1));
-        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         gl.uniform3fv(mColorLoc, flatten([1.0, 0.0, 0.0]));
         sphereDraw(gl, program, drawFilled);
     popMatrix();
@@ -58,7 +60,7 @@ function drawTail(gl, program){
         //CAUDA
         pushMatrix();
             multMatrix(scalem(1.0, 5.0, 1.0));
-            gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+            gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
             gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
             sphereDraw(gl, program, drawFilled);
         popMatrix();
@@ -67,7 +69,7 @@ function drawTail(gl, program){
         pushMatrix();
             multMatrix(translate(0, -BODY_LENGTH/2, 0));
             multMatrix(scalem(3.0, 0.5, 0.1));
-            gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+            gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
             gl.uniform3fv(mColorLoc, flatten([0.0, 0.0, 1.0]));
             sphereDraw(gl, program, drawFilled);
         popMatrix();
@@ -76,7 +78,7 @@ function drawTail(gl, program){
             multMatrix(translate(0, -BODY_LENGTH/2, 0.5));
             multMatrix(rotateY(90));
             multMatrix(scalem(1.5, 0.5, 0.1));
-            gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+            gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
             sphereDraw(gl, program, drawFilled);
         popMatrix();
     popMatrix();
@@ -88,7 +90,7 @@ function drawWings(gl, program, speed){
         pushMatrix();
             multMatrix(scalem(WING_WIDTH, 2.0, 0.1))
             gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 0.0]));
-            gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+            gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
             pyramidDraw(gl, program, drawFilled);
         popMatrix();
         wingDetails(gl, true, program, speed);
@@ -112,14 +114,14 @@ function wingEngine(gl, program){
         multMatrix(rotateX(90));
         multMatrix(scalem(0.3, 0.3, 0.5));
         gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
-        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         cylinderDraw(gl, program, drawFilled);
     popMatrix();
     //Propulsor
     pushMatrix();
         multMatrix(scalem(0.5, 1.3, 0.5));  
         gl.uniform3fv(mColorLoc, flatten([1.0, 0.0, 1.0]));
-        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         cylinderDraw(gl, program, drawFilled);
     popMatrix();
 }
@@ -130,7 +132,7 @@ function engineRotators(gl, program, speed){
         multMatrix(translate(0, 0.4, 0));
         multMatrix(scalem(0.2, 1.0, 0.2));
         gl.uniform3fv(mColorLoc, flatten([0.0, 0.0, 0.0]));
-        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         sphereDraw(gl, program, drawFilled);
     popMatrix();
     //Helices
@@ -138,7 +140,7 @@ function engineRotators(gl, program, speed){
     multMatrix(rotateY(speed));    
     multMatrix(scalem(0.1, 0.01, 1.0));
     gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
-    gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+    gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
     sphereDraw(gl, program, drawFilled);
 }
 
@@ -156,7 +158,7 @@ function landingKit(gl, program, front){
         multMatrix(rotateX(90));
         multMatrix(scalem(0.15, 0.8, 0.1));
         gl.uniform3fv(mColorLoc, flatten([0.8, 0.8, 0.8]));
-        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         cylinderDraw(gl, program, drawFilled);
     popMatrix();
 }
@@ -167,7 +169,7 @@ function drawWheel(gl, program, right){
         multMatrix(translate(side * 0.1, 0, -0.3));
         multMatrix(scalem(0.1, 0.5, 0.5));
         gl.uniform3fv(mColorLoc, flatten([1.0, 1.0, 1.0]));
-        gl.uniformMatrix4fv(mModelViewLoc, false, flatten(modelView));
+        gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         sphereDraw(gl, program, drawFilled);
     popMatrix();
 }

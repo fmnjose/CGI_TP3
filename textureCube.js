@@ -32,9 +32,9 @@ function textureCubeInit(gl) {
 function loadTexture(gl) {
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
     var road = new Image();
-    road.src = "./road.png";
+    road.src = "road.png";
     
     road.onload = function() {
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -90,10 +90,10 @@ function textureCubeDrawWireFrame(gl, program)
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_normals_buffer);
-    var vNormal = gl.getAttribLocation(program, "vNormal");
-    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vNormal);
+    //gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_normals_buffer);
+    //var vNormal = gl.getAttribLocation(program, "vNormal");
+    //gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    //gl.enableVertexAttribArray(vNormal);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, textureCube_edges_buffer);
     gl.drawElements(gl.LINES, textureCube_edges.length, gl.UNSIGNED_BYTE, 0);
@@ -112,10 +112,10 @@ function textureCubeDrawFilled(gl, program)
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_normals_buffer);
-    var vNormal = gl.getAttribLocation(program, "vNormal");
-    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vNormal);
+    //gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_normals_buffer);
+    //var vNormal = gl.getAttribLocation(program, "vNormal");
+    //gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    //gl.enableVertexAttribArray(vNormal);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_texCoords_buffer);
     var vTexCoords = gl.getAttribLocation(program, "vTexCoord");

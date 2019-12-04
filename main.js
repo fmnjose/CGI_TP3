@@ -26,7 +26,9 @@ const SPEED_SCALE = 2;
 
 var aspectX, aspectY;
 
-var mProjectionLoc, mModelViewLoc, mColorLoc;
+var planeProjectionLoc, planeModelViewLoc, mColorLoc;
+
+var floorModelViewLoc;
 
 var matrixStack = [];
 var modelView, mProjection;
@@ -97,8 +99,9 @@ window.onload = function() {
 
     gl.useProgram(planeProgram);
 
-    mModelViewLoc = gl.getUniformLocation(planeProgram, "mModelView");
-    mProjectionLoc = gl.getUniformLocation(planeProgram, "mProjection");
+    planeModelViewLoc = gl.getUniformLocation(planeProgram, "mModelView");
+    planeProjectionLoc = gl.getUniformLocation(planeProgram, "mProjection");
+    floorModelViewLoc = gl.getUniformLocation(floorProgram, "mModelView");
     mColorLoc = gl.getUniformLocation(planeProgram, "mColor");
 
     modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
@@ -231,7 +234,7 @@ function render()
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.uniformMatrix4fv(mProjectionLoc, false, flatten(mProjection));
+    gl.uniformMatrix4fv(planeProjectionLoc, false, flatten(mProjection));
 
     floorDraw(gl, floorProgram);
 
