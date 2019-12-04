@@ -1,6 +1,7 @@
-var N_ROWS = 10;
-var N_COLUMNS = 10;
-var TILE_LENGTH = 2;
+const N_ROWS = 10;
+const N_COLUMNS = 10;
+const TILE_LENGTH = 2;
+const COLOR = color(0x95, 0x75, 0xa5);
 
 function floorInit(gl){
     textureCubeInit(gl);
@@ -9,11 +10,19 @@ function floorInit(gl){
 function floorDraw(gl, program){
     gl.useProgram(program);
 
-    for(var i = 0; i < N_ROWS / 2; i++)
-        drawRow(gl, program, i);
-    
-    for(var i = -1; i > -N_ROWS / 2 + 1; i--)
-        drawRow(gl, program, i);
+    gl.uniformMatrix4fv(floorProjectionLoc, false, flatten(mProjection));
+
+    gl.uniform3fv(floorColorLoc, flatten(COLOR));
+
+    pushMatrix();
+        multMatrix(translate(0, -distance, 0));
+
+        for(var i = 0; i < N_ROWS / 2; i++)
+            drawRow(gl, program, i);
+        
+        for(var i = -1; i > -N_ROWS / 2 + 1; i--)
+            drawRow(gl, program, i);
+    popMatrix();
 } 
 
 function  drawRow(gl, program, n){

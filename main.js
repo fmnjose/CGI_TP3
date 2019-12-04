@@ -8,6 +8,8 @@ var rollFactor = 0;
 var diveFactor = 0;
 var speed = 0;
 
+var distance = 0;
+
 var filled = true;
 
 //CONSTS
@@ -26,12 +28,17 @@ const SPEED_SCALE = 2;
 
 var aspectX, aspectY;
 
-var planeProjectionLoc, planeModelViewLoc, mColorLoc;
+var planeProjectionLoc, planeModelViewLoc, planeColorLoc;
 
-var floorModelViewLoc;
+var floorProjectionLoc, floorModelViewLoc, floorColorLoc;
 
 var matrixStack = [];
+
 var modelView, mProjection;
+
+var eye, at, up;
+
+var currentView = 1;
 
 // Stack related operations
 function pushMatrix() {
@@ -101,8 +108,11 @@ window.onload = function() {
 
     planeModelViewLoc = gl.getUniformLocation(planeProgram, "mModelView");
     planeProjectionLoc = gl.getUniformLocation(planeProgram, "mProjection");
+    planeColorLoc = gl.getUniformLocation(planeProgram, "mColor");
+
     floorModelViewLoc = gl.getUniformLocation(floorProgram, "mModelView");
-    mColorLoc = gl.getUniformLocation(planeProgram, "mColor");
+    floorProjectionLoc = gl.getUniformLocation(floorProgram, "mProjection");
+    floorColorLoc = gl.getUniformLocation(floorProgram, "mColor");
 
     modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
 
@@ -111,6 +121,8 @@ window.onload = function() {
     floorInit(gl);
 
     planeInit(gl);
+
+    topView();
 
     render();
 }
@@ -143,6 +155,7 @@ function setupInput(){
                 rollRight();
                 break;
             case 'w':
+                console.log("beans");
                 dive();
                 break;
             case 's':
@@ -171,46 +184,55 @@ function chaseView(){
 }
 
 function topView(){
+    currentView = 1;
     modelView = lookAt([0, 0, 1], [0, 0, 0], [0, 1, 0]);
 }
 
 function sideView(){
+    currentView = 2;
     modelView = lookAt([1, 0, 0], [0, 0, 0], [0, 0, 1]);
 }
 
 function frontView(){
+    currentView = 3;
     modelView = lookAt([0, 1, 0], [0, 0, 0], [0, 0, 1]);
+}
+
+function recalculateEye(){
+    
+}
+
+function recalculateAt(){
+
+}
+
+function recalculateUp(){
+
 }
 
 //-------------Controls-----------------------------
 function turnLeft(){
-    turnFactor += TURN_SCALE;
-    //multMatrix(rotateZ(TURN_SCALE));
+    turnFactor += TURN_SCALE; 
 }
 
 function turnRight(){
     turnFactor -= TURN_SCALE;
-    //multMatrix(rotateZ(-TURN_SCALE));
 }
 
 function rollLeft(){
     rollFactor -= ROLL_SCALE;
-    //multMatrix(rotateY(-ROLL_SCALE));
 }
 
 function rollRight(){
     rollFactor += ROLL_SCALE;
-    //multMatrix(rotateY(ROLL_SCALE));
 }
 
 function dive(){
     diveFactor -= DIVE_SCALE;
-    //multMatrix(rotateX(-DIVE_SCALE))
 }
 
 function soar(){
     diveFactor += DIVE_SCALE;
-    //multMatrix(rotateX(DIVE_SCALE));
 }
 
 function accelerate(){
@@ -230,13 +252,13 @@ function toggleFilled(){
 
 function render() 
 {
+    distance = (distance + speed * 0.01) % 7;
+
     requestAnimationFrame(render);
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.uniformMatrix4fv(planeProjectionLoc, false, flatten(mProjection));
-
     floorDraw(gl, floorProgram);
 
-    planeDraw(gl, planeProgram, speed, filled);
+    planeDraw(gl, planeProgram, filled);
 }
