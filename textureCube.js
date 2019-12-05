@@ -29,7 +29,7 @@ function textureCubeInit(gl) {
     textureCubeUploadData(gl);
 }
 
-function loadTexture(gl) {
+/*function loadTexture(gl) {
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
@@ -46,7 +46,7 @@ function loadTexture(gl) {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, road);
         gl.bindTexture(gl.TEXTURE_2D, null);
     };
-}
+}*/
 
 function textureCubeBuild()
 {
@@ -76,9 +76,9 @@ function textureCubeUploadData(gl)
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, textureCube_edges_buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(textureCube_edges), gl.STATIC_DRAW);
 
-    //textureCube_texCoords_buffer = gl.createBuffer();
-    //gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_texCoords_buffer);
-    //gl.bufferData(gl.ARRAY_BUFFER, flatten(textureCube_texCoords), gl.STATIC_DRAW);
+    textureCube_texCoords_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_texCoords_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(textureCube_texCoords), gl.STATIC_DRAW);
 }
 
 function textureCubeDrawWireFrame(gl, program)
@@ -112,15 +112,15 @@ function textureCubeDrawFilled(gl, program)
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    //gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_normals_buffer);
-    //var vNormal = gl.getAttribLocation(program, "vNormal");
-    //gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
-    //gl.enableVertexAttribArray(vNormal);
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_normals_buffer);
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
 
-    //gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_texCoords_buffer);
-    //var vTexCoords = gl.getAttribLocation(program, "vTexCoord");
-    //gl.vertexAttribPointer(vTexCoords, 2, gl.FLOAT, false, 0, 0);
-    //gl.enableVertexAttribArray(vTexCoords);
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureCube_texCoords_buffer);
+    var vTexCoords = gl.getAttribLocation(program, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoords, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vTexCoords);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, textureCube_faces_buffer);
     gl.drawElements(gl.TRIANGLES, textureCube_faces.length, gl.UNSIGNED_BYTE, 0);

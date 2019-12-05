@@ -1,6 +1,6 @@
-const N_ROWS = 10;
-const N_COLUMNS = 10;
-const TILE_LENGTH = 2;
+const N_ROWS = 4;
+const N_COLUMNS = 5;
+const TILE_LENGTH = 5;
 const COLOR = color(0x95, 0x75, 0xa5);
 
 function floorInit(gl){
@@ -12,7 +12,12 @@ function floorDraw(gl, program){
 
     gl.uniformMatrix4fv(floorProjectionLoc, false, flatten(mProjection));
 
-    gl.uniform3fv(floorColorLoc, flatten(COLOR));
+    //gl.uniform3fv(floorColorLoc, flatten(COLOR));
+    
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(gl.getUniformLocation(program,"texture"),0);
+
 
     pushMatrix();
         multMatrix(translate(0, -distance, 0));
