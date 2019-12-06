@@ -35,7 +35,6 @@ function planeDraw(gl, program, filled){
 
 
     pushMatrix(); 
-        console.log(planeX, planeY, planeZ);
         multMatrix(translate(planeX, planeY, planeZ));
         multRotationZ(turnDegree);      
         //CILINDRO

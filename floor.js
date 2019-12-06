@@ -1,59 +1,74 @@
-const N_ROWS = 4;
-const N_COLUMNS = 5;
+const N_ROWS = 3;
+const N_COLUMNS = 3;
 const TILE_LENGTH = 20;
 const COLOR = color(0x95, 0x75, 0xa5);
 
-var t;
+let mainTile;
+let adjacentTiles = [];
 
 function floorInit(gl){
     textureCubeInit(gl);
-    t = new Tile(planeX,planeY,TILE_LENGTH);
+    mainTile = new Tile(planeX, planeY, TILE_LENGTH);
+    generateAdjacentTiles();
 }
 
 function floorDraw(gl, program){
     gl.useProgram(program);
 
     gl.uniformMatrix4fv(floorProjectionLoc, false, flatten(mProjection));
-
-    //gl.uniform3fv(floorColorLoc, flatten(COLOR));
     
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(gl.getUniformLocation(program,"texture"),0);
 
+    if(recalculateMainTile())
+        generateAdjacentTiles();
 
-    t.drawTile(gl,program);
-    /*pushMatrix();
-        for(var i = 0; i < N_ROWS / 2; i++)
-            drawRow(gl, program, i);
-        
-        for(var i = -1; i > -N_ROWS / 2 + 1; i--)
-            drawRow(gl, program, i);
-    popMatrix();*/
+    pushMatrix();
+        mainTile.drawTile(gl,program);
+        console.log(adjacentTiles);
+        adjacentTiles.forEach(t => t.drawTile(gl, program));
+    popMatrix();
 } 
 
-/*function  drawRow(gl, program, n){
-    pushMatrix();
-        drawAnchorTile(gl, program, n)
-        for(var i = 1; i < N_COLUMNS; i++)
-            drawTile(gl, program, i);
-    popMatrix();
+function recalculateMainTile(){
+    let changed = true;
+    if(planeY > mainTile.maxY){
+        if(planeX > mainTile.maxX)
+            mainTile = adjacentTiles[1];
+        else if(planeX < mainTile.minX)
+            mainTile = adjacentTiles[7];
+        else 
+            mainTile = adjacentTiles[0];
+    }else if(planeY < mainTile.minY){
+        if(planeX > mainTile.maxX)
+            mainTile = adjacentTiles[3];
+        else if(planeX < mainTile.minX)
+            mainTile = adjacentTiles[5];
+        else 
+            mainTile = adjacentTiles[4];
+    }else{
+        if(planeX > mainTile.maxX)
+            mainTile = adjacentTiles[2];
+        else if(planeX < mainTile.minX)
+            mainTile = adjacentTiles[6];
+        else 
+            changed = false;
+    }
+
+    return changed;
 }
 
-function drawAnchorTile(gl, program, n){
-    multMatrix(translate(-TILE_LENGTH * (N_COLUMNS / 2), TILE_LENGTH * n, -0.7));
-    pushMatrix();
-        multMatrix(scalem(TILE_LENGTH, TILE_LENGTH, 0.1));
-        gl.uniformMatrix4fv(floorModelViewLoc, false, flatten(modelView));
-        textureCubeDraw(gl, program, true);
-    popMatrix();
+function generateAdjacentTiles(){
+    let x = mainTile.x;
+    let y = mainTile.y;
+    adjacentTiles = [];
+    adjacentTiles.push(new Tile(x, y + TILE_LENGTH, TILE_LENGTH));//0
+    adjacentTiles.push(new Tile(x + TILE_LENGTH, y + TILE_LENGTH, TILE_LENGTH));//\
+    adjacentTiles.push(new Tile(x + TILE_LENGTH, y, TILE_LENGTH));//2
+    adjacentTiles.push(new Tile(x + TILE_LENGTH, y - TILE_LENGTH, TILE_LENGTH));//3
+    adjacentTiles.push(new Tile(x, y - TILE_LENGTH, TILE_LENGTH));//4
+    adjacentTiles.push(new Tile(x - TILE_LENGTH, y - TILE_LENGTH, TILE_LENGTH));//5
+    adjacentTiles.push(new Tile(x - TILE_LENGTH, y, TILE_LENGTH));//6
+    adjacentTiles.push(new Tile(x - TILE_LENGTH, y + TILE_LENGTH, TILE_LENGTH));//7
 }
-
-function drawTile(gl, program, n){
-    pushMatrix();
-        multMatrix(translate(TILE_LENGTH * n, 0, 0));
-        multMatrix(scalem(TILE_LENGTH, TILE_LENGTH, 0.1));
-        gl.uniformMatrix4fv(floorModelViewLoc, false, flatten(modelView));
-        textureCubeDraw(gl, program, true);
-    popMatrix();
-}*/

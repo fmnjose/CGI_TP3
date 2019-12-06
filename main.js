@@ -187,7 +187,6 @@ function setupInput(){
                 rollRight();
                 break;
             case 'w':
-                console.log("beans");
                 dive();
                 break;
             case 's':
