@@ -1,14 +1,14 @@
-const N_ROWS = 3;
-const N_COLUMNS = 3;
-const TILE_LENGTH = 20;
+const N_ROWS = 10;
+const N_COLUMNS = 10;
+const TILE_LENGTH = 10;
 const COLOR = color(0x95, 0x75, 0xa5);
 
-let mainTile;
+let seed;
 let adjacentTiles = [];
 
 function floorInit(gl){
     textureCubeInit(gl);
-    mainTile = new Tile(planeX, planeY, TILE_LENGTH);
+    seed = new Tile(planeX, planeY, TILE_LENGTH);
     generateAdjacentTiles();
 }
 
@@ -24,34 +24,30 @@ function floorDraw(gl, program){
     if(recalculateMainTile())
         generateAdjacentTiles();
 
-    pushMatrix();
-        mainTile.drawTile(gl,program);
-        console.log(adjacentTiles);
-        adjacentTiles.forEach(t => t.drawTile(gl, program));
-    popMatrix();
+    seed.drawWorld(gl,program, N_ROWS, N_COLUMNS);
 } 
 
 function recalculateMainTile(){
     let changed = true;
-    if(planeY > mainTile.maxY){
-        if(planeX > mainTile.maxX)
-            mainTile = adjacentTiles[1];
-        else if(planeX < mainTile.minX)
-            mainTile = adjacentTiles[7];
+    if(planeY > seed.maxY){
+        if(planeX > seed.maxX)
+            seed = adjacentTiles[1];
+        else if(planeX < seed.minX)
+            seed = adjacentTiles[7];
         else 
-            mainTile = adjacentTiles[0];
-    }else if(planeY < mainTile.minY){
-        if(planeX > mainTile.maxX)
-            mainTile = adjacentTiles[3];
-        else if(planeX < mainTile.minX)
-            mainTile = adjacentTiles[5];
+            seed = adjacentTiles[0];
+    }else if(planeY < seed.minY){
+        if(planeX > seed.maxX)
+            seed = adjacentTiles[3];
+        else if(planeX < seed.minX)
+            seed = adjacentTiles[5];
         else 
-            mainTile = adjacentTiles[4];
+            seed = adjacentTiles[4];
     }else{
-        if(planeX > mainTile.maxX)
-            mainTile = adjacentTiles[2];
-        else if(planeX < mainTile.minX)
-            mainTile = adjacentTiles[6];
+        if(planeX > seed.maxX)
+            seed = adjacentTiles[2];
+        else if(planeX < seed.minX)
+            seed = adjacentTiles[6];
         else 
             changed = false;
     }
@@ -60,8 +56,8 @@ function recalculateMainTile(){
 }
 
 function generateAdjacentTiles(){
-    let x = mainTile.x;
-    let y = mainTile.y;
+    let x = seed.x;
+    let y = seed.y;
     adjacentTiles = [];
     adjacentTiles.push(new Tile(x, y + TILE_LENGTH, TILE_LENGTH));//0
     adjacentTiles.push(new Tile(x + TILE_LENGTH, y + TILE_LENGTH, TILE_LENGTH));//\

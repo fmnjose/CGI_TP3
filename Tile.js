@@ -17,4 +17,15 @@ class Tile{
             textureCubeDraw(gl,program,true);
         popMatrix();
     }
+
+    drawWorld(gl,program, chunksFront, chunksSide){
+        let yChunk, xChunk;
+        for(var i = -chunksFront ; i < chunksFront; i++){
+            yChunk = new Tile(this.x, this.y + i * this.scale, this.scale);
+            for(var j = -chunksSide; j <chunksSide; j++){
+                xChunk = new Tile(this.x + j * this.scale, yChunk.y, this.scale);
+                xChunk.drawTile(gl, program);
+            }
+        }
+    }
 }

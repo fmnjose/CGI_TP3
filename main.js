@@ -4,9 +4,17 @@ var planeProgram, floorProgram;
 var canvasX, canvasY;
 
 var turnDegree = 0;
+var turning = 0;
+
 var rollDegree = 0;
+var rolling = 0;
+
 var diveDegree = 0;
+var diving = 0;
+
 var speed = 0;
+
+var flying = false;
 
 var texture;
 
@@ -18,9 +26,15 @@ const ORTHO = ortho(-4, 4, -4, 4, -10, 10);
 
 const TURN_SCALE = 2;
 
+const TURN_CAP = 45;
+
 const ROLL_SCALE = 2;
 
+const ROLL_CAP = 45;
+
 const DIVE_SCALE = 2;
+
+const DIVE_CAP = 45;
 
 const SPEED_SCALE = 2;
 
@@ -175,22 +189,22 @@ function setupInput(){
                 frontView();
                 break;
             case 'q':
-                turnLeft();
+                turn(1);
                 break;
             case 'e':
-                turnRight();
+                turn(-1);
                 break;
             case 'a':
-                rollLeft();
+                roll(-1);
                 break;
             case 'd':
-                rollRight();
+                roll(1);
                 break;
             case 'w':
-                dive();
+                dive(-1);
                 break;
             case 's':
-                soar();
+                dive(1);
                 break;
             case 'r':
                 accelerate();
@@ -240,28 +254,19 @@ function frontView(){
     mProjection = projectionDefault;
 }
 //-------------Controls-----------------------------
-function turnLeft(){
-    turnDegree += TURN_SCALE; 
+function turn(side){
+    turnDegree += side * TURN_SCALE; 
+    turning = Math.abs(turning + side * TURN_SCALE) >= TURN_CAP ? side * TURN_CAP : turning + side * TURN_SCALE;
 }
 
-function turnRight(){
-    turnDegree -= TURN_SCALE;
+function roll(side){
+    rollDegree += side * ROLL_SCALE;
+    rolling = Math.abs(rolling + side * ROLL_SCALE) >= ROLL_CAP ? side * ROLL_CAP : rolling + side * ROLL_SCALE;
 }
 
-function rollLeft(){
-    rollDegree -= ROLL_SCALE;
-}
-
-function rollRight(){
-    rollDegree += ROLL_SCALE;
-}
-
-function dive(){
-    diveDegree -= DIVE_SCALE;
-}
-
-function soar(){
-    diveDegree += DIVE_SCALE;
+function dive(side){
+    diveDegree += side * DIVE_SCALE;
+    diving = Math.abs(diving + side * DIVE_SCALE) >= DIVE_CAP ? side * DIVE_CAP : diving + side * DIVE_SCALE
 }
 
 function accelerate(){
@@ -278,12 +283,14 @@ function toggleFilled(){
 //--------------------RENDER------------------------
 
 function calculatePlanePostion(distance){
-    planeX += distance * Math.sin(radians(-turnDegree)) + distance * Math.sin(radians(-rollDegree));
-    planeY += distance * Math.cos(radians(-turnDegree)) + distance * Math.cos(radians(diveDegree));
-    planeZ += distance * Math.sin(radians(diveDegree)) + distance * Math.sin(radians(rollDegree));
+    planeX += distance * (Math.sin(radians(-turnDegree)));
+    planeY += distance * (Math.cos(radians(-turnDegree)) + Math.sin(radians(diveDegree)));
+    planeZ = planeZ + distance * (Math.sin(radians(diveDegree))) < 1.3 ? 1.3 :  planeZ + distance * (Math.sin(radians(diveDegree)));
+
+    flying = planeZ != 1.3;
 }
 
-function calculateCamera(distance){
+function calculateCamera(){
     let planeVec = vec3(planeX, planeY, planeZ);
     let auxEye = mult(rotateZ(turnDegree), vec4(eye, 1));
     auxEye = add(auxEye.slice(0, 3), planeVec);
@@ -296,13 +303,21 @@ function calculateCamera(distance){
     modelView = lookAt(auxEye, auxAt, auxUp.slice(0,3));
 }
 
+function movingPartsAnimation(){    
+    turning = Math.abs(turning) - TURN_SCALE / 10 < 0 ? 0 : turning - Math.sign(turning) * TURN_SCALE / 10;
+    rolling = Math.abs(rolling) - ROLL_SCALE / 10 < 0 ? 0 : rolling - Math.sign(rolling) * ROLL_SCALE / 10;
+    diving = Math.abs(diving) - DIVE_SCALE / 10 < 0 ? 0 : diving - Math.sign(turning) * ROLL_SCALE / 10;
+}
+
 function render() 
 {
     let distance = speed * 0.01;
 
     calculatePlanePostion(distance);
 
-    calculateCamera(distance);
+    calculateCamera();
+
+    movingPartsAnimation();
 
     requestAnimationFrame(render);
     
