@@ -1,6 +1,6 @@
 const N_ROWS = 4;
 const N_COLUMNS = 5;
-const TILE_LENGTH = 5;
+const TILE_LENGTH = 20;
 const COLOR = color(0x95, 0x75, 0xa5);
 
 function floorInit(gl){
@@ -20,8 +20,6 @@ function floorDraw(gl, program){
 
 
     pushMatrix();
-        multMatrix(translate(0, -distance, 0));
-
         for(var i = 0; i < N_ROWS / 2; i++)
             drawRow(gl, program, i);
         

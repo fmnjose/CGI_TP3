@@ -34,11 +34,10 @@ function planeDraw(gl, program, filled){
     gl.uniformMatrix4fv(planeProjectionLoc, false, flatten(mProjection));
 
 
-    pushMatrix();
-    multMatrix(rotateX(diveFactor));
-    multMatrix(rotateY(rollFactor));
-    multMatrix(rotateZ(turnFactor));
-    multMatrix(scalem(SCALE, SCALE, SCALE));
+    pushMatrix(); 
+        console.log(planeX, planeY, planeZ);
+        multMatrix(translate(planeX, planeY, planeZ));
+        multRotationZ(turnDegree);      
         //CILINDRO
         pushMatrix();
             multMatrix(scalem(1, BODY_LENGTH, 1));

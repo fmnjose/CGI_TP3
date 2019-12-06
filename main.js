@@ -3,12 +3,10 @@ var gl;
 var planeProgram, floorProgram;
 var canvasX, canvasY;
 
-var turnFactor = 0;
-var rollFactor = 0;
-var diveFactor = 0;
+var turnDegree = 0;
+var rollDegree = 0;
+var diveDegree = 0;
 var speed = 0;
-
-var distance = 0;
 
 var texture;
 
@@ -36,9 +34,13 @@ var floorProjectionLoc, floorModelViewLoc, floorColorLoc;
 
 var matrixStack = [];
 
+var planeX = 0; 
+var planeY = 0;
+var planeZ = 0;
+
 var modelView, mProjection, projectionDefault;
 
-var eye, at, up;
+var eye, at = vec3(0, 0 ,0), up;
 
 var currentView = 1;
 
@@ -210,71 +212,55 @@ function setupInput(){
 //------PROJECTIONS
 
 function chaseView(){
-
-    //u = vetor at - eye
-    //ux = u(x); uy = u(y); uz = u(z)
-    //v = up
-    //vx = v(x); vy = v(y); vz = v(z)
-    //u.v = 0 <=> ux*vx + uy*vy + uz*vz = 0
-    //Considerando ux = uy*vy = -uz*vz <=> vy = (-uz*vz) / uy;
-
-    modelView = lookAt([0, -2, 3], [0, 0, 0], [0, 1, 0]);
+    eye = vec3(0, -2, 3);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 0, 1);
     mProjection = mult(projectionDefault, perspective(60,aspectX/aspectY, -10 ,20));
 }
 
 function topView(){
-    currentView = 1;
-    modelView = lookAt([0, 0, 1], [0, 0, 0], [0, 1, 0]);
+    eye = vec3(0, 0, 1);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 1, 0);
     mProjection = projectionDefault;
 }
 
 function sideView(){
-    currentView = 2;
-    modelView = lookAt([1, 0, 0], [0, 0, 0], [0, 0, 1]);
+    eye = vec3(1, 0, 0);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 0, 1);
     mProjection = projectionDefault;
 }
 
 function frontView(){
-    currentView = 3;
-    modelView = lookAt([0, 1, 0], [0, 0, 0], [0, 0, 1]);
+    eye = vec3(0, 1 ,0);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 0, 1);
     mProjection = projectionDefault;
 }
-
-function recalculateEye(){
-    
-}
-
-function recalculateAt(){
-
-}
-
-function recalculateUp(){
-
-}
-
 //-------------Controls-----------------------------
 function turnLeft(){
-    turnFactor += TURN_SCALE; 
+    turnDegree += TURN_SCALE; 
 }
 
 function turnRight(){
-    turnFactor -= TURN_SCALE;
+    turnDegree -= TURN_SCALE;
 }
 
 function rollLeft(){
-    rollFactor -= ROLL_SCALE;
+    rollDegree -= ROLL_SCALE;
 }
 
 function rollRight(){
-    rollFactor += ROLL_SCALE;
+    rollDegree += ROLL_SCALE;
 }
 
 function dive(){
-    diveFactor -= DIVE_SCALE;
+    diveDegree -= DIVE_SCALE;
 }
 
 function soar(){
-    diveFactor += DIVE_SCALE;
+    diveDegree += DIVE_SCALE;
 }
 
 function accelerate(){
@@ -288,13 +274,28 @@ function brake(){
 function toggleFilled(){
     filled = !filled;
 }
-    
-
 //--------------------RENDER------------------------
+
+function calculatePlanePostion(distance){
+    planeX += distance * Math.sin(radians(-turnDegree));
+    planeY += distance * Math.cos(radians(-turnDegree));
+}
+
+function calculateCamera(distance){
+    let planeVec = vec3(planeX, planeY, planeZ);
+    let auxEye = mult(rotateZ(turnDegree), vec4(eye, 1));
+    auxEye = add(auxEye.slice(0, 3), planeVec);
+    let auxAt = add(at, planeVec);
+    modelView = lookAt(auxEye, auxAt, up);
+}
 
 function render() 
 {
-    distance = (distance + speed * 0.01) % 7;
+    let distance = speed * 0.01;
+
+    calculatePlanePostion(distance);
+
+    calculateCamera(distance);
 
     requestAnimationFrame(render);
     
