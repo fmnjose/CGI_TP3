@@ -3,18 +3,18 @@ var gl;
 var planeProgram, floorProgram;
 var canvasX, canvasY;
 
-var turnFactor = 0;
-var rollFactor = 0;
-var diveFactor = 0;
+var turnDegree = 0;
+var rollDegree = 0;
+var diveDegree = 0;
 var speed = 0;
 
-var distance = 0;
+var texture;
 
 var filled = true;
 
 //CONSTS
 
-const ORTHO = ortho(-2, 2, -2, 2, -10, 10);
+const ORTHO = ortho(-2, 2, -2, 2, -10, 10); 
 
 const TURN_SCALE = 2;
 
@@ -34,9 +34,13 @@ var floorProjectionLoc, floorModelViewLoc, floorColorLoc;
 
 var matrixStack = [];
 
-var modelView, mProjection;
+var planeX = 0; 
+var planeY = 0;
+var planeZ = 0;
 
-var eye, at, up;
+var modelView, mProjection, projectionDefault;
+
+var eye, at = vec3(0, 0 ,0), up;
 
 var currentView = 1;
 
@@ -76,8 +80,9 @@ function fit_canvas_to_window()
     aspectY = canvasY / window.innerHeight;
     canvas.height = window.innerHeight;
 
-    mProjection = mult(scalem(aspectX, aspectY, 1), ORTHO);
+    projectionDefault = mult(scalem(aspectX, aspectY, 1), ORTHO);
     
+    mProjection = projectionDefault;
     gl.viewport(0, 0,canvas.width, canvas.height);
 
 }
@@ -96,7 +101,7 @@ window.onload = function() {
 
     fit_canvas_to_window();
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.5, 0.5, 0.5, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -110,6 +115,7 @@ window.onload = function() {
     planeProjectionLoc = gl.getUniformLocation(planeProgram, "mProjection");
     planeColorLoc = gl.getUniformLocation(planeProgram, "mColor");
 
+    gl.useProgram(floorProgram);
     floorModelViewLoc = gl.getUniformLocation(floorProgram, "mModelView");
     floorProjectionLoc = gl.getUniformLocation(floorProgram, "mProjection");
     floorColorLoc = gl.getUniformLocation(floorProgram, "mColor");
@@ -117,14 +123,41 @@ window.onload = function() {
     modelView = lookAt([0, 0, 1], [0,0,0], [0,1,0]);
 
     setupInput();
+    
+    setupTexture();
 
     floorInit(gl);
 
+
     planeInit(gl);
 
-    topView();
-
+    this.chaseView();
+    
     render();
+}
+
+function setupTexture(){
+    gl.useProgram(floorProgram);
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 255, 255]));
+    
+    var image = new Image();
+    image.src = "./road.png";
+
+    
+    image.onload = function(){
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    };
 }
 
 function setupInput(){
@@ -179,60 +212,55 @@ function setupInput(){
 //------PROJECTIONS
 
 function chaseView(){
-    modelView = lookAt([0, -1, 0], [0, 0, 0], [0, 0, 1]);
-    //modelView = perspective(120, 2,-10, 10);
+    eye = vec3(0, -2, 3);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 0, 1);
+    mProjection = mult(projectionDefault, perspective(60,aspectX/aspectY, -10 ,20));
 }
 
 function topView(){
-    currentView = 1;
-    modelView = lookAt([0, 0, 1], [0, 0, 0], [0, 1, 0]);
+    eye = vec3(0, 0, 1);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 1, 0);
+    mProjection = projectionDefault;
 }
 
 function sideView(){
-    currentView = 2;
-    modelView = lookAt([1, 0, 0], [0, 0, 0], [0, 0, 1]);
+    eye = vec3(1, 0, 0);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 0, 1);
+    mProjection = projectionDefault;
 }
 
 function frontView(){
-    currentView = 3;
-    modelView = lookAt([0, 1, 0], [0, 0, 0], [0, 0, 1]);
+    eye = vec3(0, 1 ,0);
+    at = vec3(0, 0, 0);
+    up = vec3(0, 0, 1);
+    mProjection = projectionDefault;
 }
-
-function recalculateEye(){
-    
-}
-
-function recalculateAt(){
-
-}
-
-function recalculateUp(){
-
-}
-
 //-------------Controls-----------------------------
 function turnLeft(){
-    turnFactor += TURN_SCALE; 
+    turnDegree += TURN_SCALE; 
 }
 
 function turnRight(){
-    turnFactor -= TURN_SCALE;
+    turnDegree -= TURN_SCALE;
 }
 
 function rollLeft(){
-    rollFactor -= ROLL_SCALE;
+    rollDegree -= ROLL_SCALE;
 }
 
 function rollRight(){
-    rollFactor += ROLL_SCALE;
+    rollDegree += ROLL_SCALE;
 }
 
 function dive(){
-    diveFactor -= DIVE_SCALE;
+    diveDegree -= DIVE_SCALE;
 }
 
 function soar(){
-    diveFactor += DIVE_SCALE;
+    diveDegree += DIVE_SCALE;
 }
 
 function accelerate(){
@@ -246,13 +274,28 @@ function brake(){
 function toggleFilled(){
     filled = !filled;
 }
-    
-
 //--------------------RENDER------------------------
+
+function calculatePlanePostion(distance){
+    planeX += distance * Math.sin(radians(-turnDegree));
+    planeY += distance * Math.cos(radians(-turnDegree));
+}
+
+function calculateCamera(distance){
+    let planeVec = vec3(planeX, planeY, planeZ);
+    let auxEye = mult(rotateZ(turnDegree), vec4(eye, 1));
+    auxEye = add(auxEye.slice(0, 3), planeVec);
+    let auxAt = add(at, planeVec);
+    modelView = lookAt(auxEye, auxAt, up);
+}
 
 function render() 
 {
-    distance = (distance + speed * 0.01) % 7;
+    let distance = speed * 0.01;
+
+    calculatePlanePostion(distance);
+
+    calculateCamera(distance);
 
     requestAnimationFrame(render);
     
