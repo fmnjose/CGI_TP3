@@ -3,8 +3,11 @@ const N_COLUMNS = 5;
 const TILE_LENGTH = 20;
 const COLOR = color(0x95, 0x75, 0xa5);
 
+var t;
+
 function floorInit(gl){
     textureCubeInit(gl);
+    t = new Tile(planeX,planeY,TILE_LENGTH);
 }
 
 function floorDraw(gl, program){
@@ -19,16 +22,17 @@ function floorDraw(gl, program){
     gl.uniform1i(gl.getUniformLocation(program,"texture"),0);
 
 
-    pushMatrix();
+    t.drawTile(gl,program);
+    /*pushMatrix();
         for(var i = 0; i < N_ROWS / 2; i++)
             drawRow(gl, program, i);
         
         for(var i = -1; i > -N_ROWS / 2 + 1; i--)
             drawRow(gl, program, i);
-    popMatrix();
+    popMatrix();*/
 } 
 
-function  drawRow(gl, program, n){
+/*function  drawRow(gl, program, n){
     pushMatrix();
         drawAnchorTile(gl, program, n)
         for(var i = 1; i < N_COLUMNS; i++)
@@ -52,4 +56,4 @@ function drawTile(gl, program, n){
         gl.uniformMatrix4fv(floorModelViewLoc, false, flatten(modelView));
         textureCubeDraw(gl, program, true);
     popMatrix();
-}
+}*/

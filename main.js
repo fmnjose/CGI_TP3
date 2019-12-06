@@ -128,7 +128,6 @@ window.onload = function() {
 
     floorInit(gl);
 
-
     planeInit(gl);
 
     this.chaseView();
