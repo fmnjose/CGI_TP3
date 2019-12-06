@@ -14,7 +14,7 @@ var filled = true;
 
 //CONSTS
 
-const ORTHO = ortho(-2, 2, -2, 2, -10, 10); 
+const ORTHO = ortho(-4, 4, -4, 4, -10, 10); 
 
 const TURN_SCALE = 2;
 
@@ -36,13 +36,13 @@ var matrixStack = [];
 
 var planeX = 0; 
 var planeY = 0;
-var planeZ = 0;
+var planeZ = 1.3;
 
 var modelView, mProjection, projectionDefault;
 
 var eye, at = vec3(0, 0 ,0), up;
 
-var currentView = 1;
+var currentView;
 
 // Stack related operations
 function pushMatrix() {
@@ -210,16 +210,17 @@ function setupInput(){
 //------PROJECTIONS
 
 function chaseView(){
-    eye = vec3(0, -2, 3);
+    eye = vec3(0, -2, 4);
     at = vec3(0, 0, 0);
     up = vec3(0, 0, 1);
-    mProjection = mult(projectionDefault, perspective(60,aspectX/aspectY, -10 ,20));
+    mProjection = mult(projectionDefault, perspective(60,aspectX/aspectY, -10 ,30));
 }
 
 function topView(){
-    eye = vec3(0, 0, 1);
+    eye = vec3(0, 0, 4);
     at = vec3(0, 0, 0);
     up = vec3(0, 1, 0);
+    currentView = "top";
     mProjection = projectionDefault;
 }
 
@@ -227,6 +228,7 @@ function sideView(){
     eye = vec3(1, 0, 0);
     at = vec3(0, 0, 0);
     up = vec3(0, 0, 1);
+    currentView = "side";
     mProjection = projectionDefault;
 }
 
@@ -234,6 +236,7 @@ function frontView(){
     eye = vec3(0, 1 ,0);
     at = vec3(0, 0, 0);
     up = vec3(0, 0, 1);
+    currentView = "front"
     mProjection = projectionDefault;
 }
 //-------------Controls-----------------------------
@@ -275,16 +278,22 @@ function toggleFilled(){
 //--------------------RENDER------------------------
 
 function calculatePlanePostion(distance){
-    planeX += distance * Math.sin(radians(-turnDegree));
-    planeY += distance * Math.cos(radians(-turnDegree));
+    planeX += distance * Math.sin(radians(-turnDegree)) + distance * Math.sin(radians(-rollDegree));
+    planeY += distance * Math.cos(radians(-turnDegree)) + distance * Math.cos(radians(diveDegree));
+    planeZ += distance * Math.sin(radians(diveDegree)) + distance * Math.sin(radians(rollDegree));
 }
 
 function calculateCamera(distance){
     let planeVec = vec3(planeX, planeY, planeZ);
     let auxEye = mult(rotateZ(turnDegree), vec4(eye, 1));
     auxEye = add(auxEye.slice(0, 3), planeVec);
+    let auxUp = up;
+
+    if(currentView = "top")
+        auxUp = mult(rotateZ(turnDegree), vec4(up,1));
+
     let auxAt = add(at, planeVec);
-    modelView = lookAt(auxEye, auxAt, up);
+    modelView = lookAt(auxEye, auxAt, auxUp.slice(0,3));
 }
 
 function render() 

@@ -37,6 +37,8 @@ function planeDraw(gl, program, filled){
     pushMatrix(); 
         multMatrix(translate(planeX, planeY, planeZ));
         multRotationZ(turnDegree);      
+        multRotationY(rollDegree);
+        multRotationX(diveDegree);
         //CILINDRO
         pushMatrix();
             multMatrix(scalem(1, BODY_LENGTH, 1));
