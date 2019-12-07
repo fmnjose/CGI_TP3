@@ -14,6 +14,7 @@ var diving = 0;
 
 var speed = 0;
 
+
 var flying = false;
 
 var texture;
@@ -22,7 +23,7 @@ var filled = true;
 
 //CONSTS
 
-const ORTHO = ortho(-4, 4, -4, 4, -10, 10); 
+const ORTHO = ortho(-4, 4, -4, 4, -50, 50); 
 
 const TURN_SCALE = 2;
 
@@ -37,6 +38,8 @@ const DIVE_SCALE = 2;
 const DIVE_CAP = 45;
 
 const SPEED_SCALE = 2;
+
+const SPEED_CAP = 200;
 
 //VARS
 
@@ -224,10 +227,12 @@ function setupInput(){
 //------PROJECTIONS
 
 function chaseView(){
-    eye = vec3(0, -2, 4);
+    console.log(Math.cos(radians(90)));
+    eye = vec3(0, -5, 3);
     at = vec3(0, 0, 0);
     up = vec3(0, 0, 1);
-    mProjection = mult(projectionDefault, perspective(60,aspectX/aspectY, -10 ,30));
+    currentView = "chase";
+    mProjection = mult(projectionDefault, perspective(20,aspectX/aspectY, -10 ,20));
 }
 
 function topView(){
@@ -271,6 +276,7 @@ function dive(side){
 
 function accelerate(){
     speed += SPEED_SCALE;
+    speed = speed >= SPEED_CAP ? SPEED_CAP : speed;
 }
 
 function brake(){
@@ -283,9 +289,17 @@ function toggleFilled(){
 //--------------------RENDER------------------------
 
 function calculatePlanePostion(distance){
-    planeX += distance * (Math.sin(radians(-turnDegree)));
-    planeY += distance * (Math.cos(radians(-turnDegree)) + Math.sin(radians(diveDegree)));
-    planeZ = planeZ + distance * (Math.sin(radians(diveDegree))) < 1.3 ? 1.3 :  planeZ + distance * (Math.sin(radians(diveDegree)));
+    console.log(radians(rollDegree), Math.sin(radians(rollDegree)));
+    let direction = Math.sin(radians(-turnDegree));
+    planeX += distance * direction + distance * Math.sin(radians(rollDegree) * Math.cos(radians(turnDegree)));
+    planeY += distance * (Math.cos(radians(-turnDegree))*Math.cos(radians(diveDegree)));
+
+    let underFloor = planeZ + distance * (Math.sin(radians(diveDegree))) < 1.3;
+
+    if(underFloor)
+        speed = 0;
+
+    planeZ = underFloor ? 1.3 :  planeZ + distance * (Math.sin(radians(diveDegree)));
 
     flying = planeZ != 1.3;
 }
@@ -293,12 +307,20 @@ function calculatePlanePostion(distance){
 function calculateCamera(){
     let planeVec = vec3(planeX, planeY, planeZ);
     let auxEye = mult(rotateZ(turnDegree), vec4(eye, 1));
-    auxEye = add(auxEye.slice(0, 3), planeVec);
     let auxUp = up;
+    //let auxUp = mult(rotateZ(turnDegree), vec4(up,1));
 
-    if(currentView = "top")
+    if(currentView == "top")
         auxUp = mult(rotateZ(turnDegree), vec4(up,1));
 
+    if(currentView == "chase"){
+        auxEye = mult(rotateX(diveDegree), auxEye);
+        auxEye = mult(rotateY(rollDegree), auxEye);
+        auxUp = mult(rotateX(-diveDegree), vec4(auxUp,1));
+        auxUp = mult(rotateY(rollDegree), auxUp);
+    }
+
+    auxEye = add(auxEye.slice(0, 3), planeVec);
     let auxAt = add(at, planeVec);
     modelView = lookAt(auxEye, auxAt, auxUp.slice(0,3));
 }

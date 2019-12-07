@@ -10,6 +10,8 @@ const SUPPORT_COLOR = WING_COLOR
 const ENGINE_COLOR = color(0x3e, 0x57, 0x77);
 const HELICES_COLOR = color(0x4f, 0xff, 0xf9);
 const WHEEL_COLOR = color(0x3f, 0x3f, 0x3f);
+const FLAP_COLOR = color(0xca, 0xfc, 0xf8);
+const AILERON_COLOR = color(0xc3, 0x87, 0xff);
 
 let helicesMem = 0;
 
@@ -123,7 +125,7 @@ function tailElevator(gl, program, right){
         multRotationX(-diving);
         multScale([1, 0.5, 0.1]);
         gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
-        gl.uniform3fv(planeColorLoc, flatten(WING_COLOR));
+        gl.uniform3fv(planeColorLoc, flatten(FLAP_COLOR));
         cubeDraw(gl, program, drawFilled);
     popMatrix();
 }
@@ -142,6 +144,7 @@ function tailRudder(gl, program){
         multRotationZ(-turning);
         multScale([0.1, 0.3, 1.1]);
         gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
+        gl.uniform3fv(planeColorLoc, flatten(AILERON_COLOR));
         cubeDraw(gl, program, drawFilled);
     popMatrix();
 }
@@ -159,7 +162,7 @@ function drawWings(gl, program, speed){
         pushMatrix();
             multTranslation([0, -1.25, 0]);
             multScale([4, 0.5, 0.1]);
-            gl.uniform3fv(planeColorLoc, flatten(WING_COLOR));
+            gl.uniform3fv(planeColorLoc, flatten(FLAP_COLOR));
             gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
             cubeDraw(gl, program, drawFilled)
         popMatrix();
@@ -195,7 +198,7 @@ function wingAilerons(gl, program, right){
         multTranslation([side * 1, -1, 0.5 -  0.25 * Math.sin(radians(side * -rolling))]);
         multRotationX(side * -rolling);
         multScale([3, 0.5, 0.1]);
-        gl.uniform3fv(planeColorLoc, flatten(WING_COLOR));
+        gl.uniform3fv(planeColorLoc, flatten(AILERON_COLOR));
         gl.uniformMatrix4fv(planeModelViewLoc, false, flatten(modelView));
         cubeDraw(gl, program, drawFilled);
     popMatrix();
