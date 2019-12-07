@@ -1,6 +1,6 @@
-const N_ROWS = 10;
-const N_COLUMNS = 10;
-const TILE_LENGTH = 10;
+const N_ROWS = 20;
+const N_COLUMNS = 20;
+const TILE_LENGTH = 5;
 const COLOR = color(0x95, 0x75, 0xa5);
 
 let seed;

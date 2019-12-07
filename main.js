@@ -55,6 +55,8 @@ var planeX = 0;
 var planeY = 0;
 var planeZ = 1.3;
 
+var image;
+
 var modelView, mProjection, projectionDefault;
 
 var eye, at = vec3(0, 0 ,0), up;
@@ -160,8 +162,8 @@ function setupTexture(){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
         new Uint8Array([0, 0, 255, 255]));
     
-    var image = new Image();
-    image.src = "./road.png";
+    image = new Image();
+    image.src = "./dirt.jpg";
 
     
     image.onload = function(){
@@ -217,6 +219,9 @@ function setupInput(){
                 break;
             case 'o':
                 toggleFilled();
+                break;
+            case 'z':
+                image.src = "./lemonke.jpeg";
                 break;
         }
     }
@@ -276,7 +281,7 @@ function dive(side){
 
 function accelerate(){
     speed += SPEED_SCALE;
-    speed = speed >= SPEED_CAP ? SPEED_CAP : speed;
+    //speed = speed >= SPEED_CAP ? SPEED_CAP : speed;
 }
 
 function brake(){
@@ -291,8 +296,8 @@ function toggleFilled(){
 function calculatePlanePostion(distance){
     console.log(radians(rollDegree), Math.sin(radians(rollDegree)));
     let direction = Math.sin(radians(-turnDegree));
-    planeX += distance * direction + distance * Math.sin(radians(rollDegree) * Math.cos(radians(turnDegree)));
-    planeY += distance * (Math.cos(radians(-turnDegree))*Math.cos(radians(diveDegree)));
+    planeX += distance * direction + distance * 2* Math.sin(radians(rollDegree)) * Math.cos(radians(-turnDegree));
+    planeY += distance * (Math.cos(radians(-turnDegree))* 2 * Math.cos(radians(diveDegree)));
 
     let underFloor = planeZ + distance * (Math.sin(radians(diveDegree))) < 1.3;
 
@@ -306,18 +311,19 @@ function calculatePlanePostion(distance){
 
 function calculateCamera(){
     let planeVec = vec3(planeX, planeY, planeZ);
-    let auxEye = mult(rotateZ(turnDegree), vec4(eye, 1));
+    let auxEye = eye;
     let auxUp = up;
-    //let auxUp = mult(rotateZ(turnDegree), vec4(up,1));
 
     if(currentView == "top")
         auxUp = mult(rotateZ(turnDegree), vec4(up,1));
 
     if(currentView == "chase"){
-        auxEye = mult(rotateX(diveDegree), auxEye);
+        auxEye = mult(rotateX(diveDegree), vec4(auxEye,1));
         auxEye = mult(rotateY(rollDegree), auxEye);
-        auxUp = mult(rotateX(-diveDegree), vec4(auxUp,1));
+        auxUp = mult(rotateX(diveDegree), vec4(auxUp,1));
         auxUp = mult(rotateY(rollDegree), auxUp);
+        auxUp = mult(rotateZ(turnDegree), auxUp)
+        auxEye = mult(rotateZ(turnDegree), auxEye);
     }
 
     auxEye = add(auxEye.slice(0, 3), planeVec);
